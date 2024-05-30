@@ -5,5 +5,5 @@ compatibility_date = "2024-05-29"
 compatibility_flags = ["nodejs_compat"]
 
 [[kv_namespaces]]
-binding = "hubspotOAuthStore"
-id = "59ba121aa2c84868a13451a661989379"
+binding = "someStore"
+id = "xxxxxxxxxxxxxxx"

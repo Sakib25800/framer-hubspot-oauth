@@ -170,3 +170,8 @@ dist
 
 .dev.vars
 .wrangler/
+wrangler.toml
+
+# misc
+.DS_Store
+*.pem
