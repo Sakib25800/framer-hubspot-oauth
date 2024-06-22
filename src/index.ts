@@ -155,7 +155,7 @@ async function handleRequest(request: Request, env: Env) {
 			client_id: env.CLIENT_ID,
 			client_secret: env.CLIENT_SECRET,
 			redirect_uri: env.REDIRECT_URI,
-			refreshToken,
+			refresh_token: refreshToken,
 		};
 
 		const refreshResponse = await fetch(env.TOKEN_ENDPOINT, {
@@ -169,11 +169,19 @@ async function handleRequest(request: Request, env: Env) {
 		if (refreshResponse.status !== 200) {
 			return new Response(refreshResponse.statusText, {
 				status: refreshResponse.status,
+				headers: {
+					'Access-Control-Allow-Origin': env.PLUGIN_URI,
+				},
 			});
 		}
 
 		const tokens = await refreshResponse.json();
-		return new Response(JSON.stringify(tokens));
+		return new Response(JSON.stringify(tokens), {
+			headers: {
+				'Content-Type': 'application/json',
+				'Access-Control-Allow-Origin': env.PLUGIN_URI,
+			},
+		});
 	}
 
 	if (request.method === 'GET' && requestUrl.pathname === '/') {
