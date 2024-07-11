@@ -6,40 +6,7 @@ async function handleRequest(request: Request, env: Env) {
 
 	// Generate an authorization URL to login into the provider, and a set of
 	// read and write keys for retrieving the access token later on.
-	if (request.method === 'POST' && requestUrl.pathname.startsWith('/authorize')) {
-		const readKey = generateRandomId();
-		const writeKey = generateRandomId();
-
-		const authorizeParams = new URLSearchParams();
-		authorizeParams.append('client_id', env.CLIENT_ID);
-		authorizeParams.append('redirect_uri', env.REDIRECT_URI);
-		authorizeParams.append('scope', env.SCOPE);
-
-		// The write key is stored in the `state` param since this will be
-		// persisted through the entire OAuth flow.
-		authorizeParams.append('state', writeKey);
-
-		// Generate the login URL for the provider.
-		const authorizeUrl = new URL(env.AUTHORIZE_ENDPOINT);
-		authorizeUrl.search = authorizeParams.toString();
-
-		await env.hubspotOAuthStore.put(`readKey:${writeKey}`, readKey, {
-			expirationTtl: 60,
-		});
-
-		const response = JSON.stringify({
-			url: authorizeUrl.toString(),
-			readKey,
-		});
-
-		return new Response(response, {
-			headers: {
-				'Content-Type': 'application/json',
-				'Access-Control-Allow-Origin': env.PLUGIN_URI,
-			},
-		});
-	}
-
+ 
 	// Once the user has been authorized via login page, the provider will
 	// redirect them back this URL with an access code (not an access token) and
 	// the write key we stored in the state param.
@@ -94,7 +61,8 @@ async function handleRequest(request: Request, env: Env) {
 		// retrieved when the plugin polls for them.
 		const tokens = (await tokenResponse.json()) as unknown;
 		env.hubspotOAuthStore.put(`tokens:${readKey}`, JSON.stringify(tokens), {
-			expirationTtl: 300,
+			// TODO: Change back to 300
+			expirationTtl: 900,
 		});
 
 		return new Response(getHTMLTemplate('Authentication successful! You can close this window and return to Framer.'), {
